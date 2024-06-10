@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import pdb
+from matplotlib.pyplot import cm
 
 
 # Precipitation function
@@ -29,11 +29,12 @@ def melt(T, m):
     
 
 # Accumulation rate
-def accumlate(T, P, T_threshold):
+def accumulate(T, P, T_threshold):
     if T <= T_threshold:
         return P
     else:
         return 0
+
 
 def net_balance_fn(dt, Ts, Ps, melt_factor, T_threshold):
     """
@@ -84,41 +85,69 @@ def glacier_net_balance_fn(zs, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
         glacier_net_balance += net_balance[i]
     return glacier_net_balance / len(zs), net_balance
 
+
 def main():
     # Data
-    weather_data = "./data/workshop-reproducible-research/own"
-    columns = ["111", "year", "day", "hour", "rel. humidity", "air temp.", "perciptation [mm / 30min]", "batt. voltage", "internal temp"]
-    ds = pd.read_csv(weather_data, names=columns)
-    t = ds["day"].to_numpy()
+    #weather_data = "./data/workshop-reproducible-research/own"
+    #columns = ["111", "year", "day", "hour", "rel. humidity", "air temp.", "perciptation [mm / 30min]", "batt. voltage", "internal temp"]
+    #ds = pd.read_csv(weather_data, names=columns)
+    #t = ds["day"].to_numpy()
+    
+    t = np.arange(0, 365, 1.24)
+    
     # Model parameters
-    m = 1.0  # Melt factor
+    melt_factor = 0.005  # Melt factor
     T_threshold = 4.0  # Threshold temperature
-    dz = 0.0
-    # Compute melt
+    lapse_rate = -0.6/100  # Temperature lapse rate
+    x = np.arange(0, 5000, 500) 
+    # Init
     M = np.zeros(len(t))
-    T = np.zeros(len(t))
+    Ts = np.zeros(len(t))
     A = np.zeros(len(t))
-    P = np.zeros(len(t))
-    for i, time in enumerate(t):
-        T[i] = synthetic_T(time)
-        P[i] = synthetic_P(time)
-        M[i] = melt(m, T[i])
-        A[i] = accumlate(T[i], P[i], T_threshold)
-    return t, T, M, A, P
+    Ps = np.zeros(len(t))
+    z_station = 1500
+    z_point = [z_station]
+    hist_point_norm_glacier_net_balance = []
+    hist_point_net_balance = []
+    hist_norm_glacier_net_balance = []
+    hist_net_balance = []
+    # Compute
+    zs = [i/5+1400-z_station for i in x]
+    for i, dt in enumerate(t):
+        Ts[i] = synthetic_T(dt)
+        Ps[i] = synthetic_P(dt)
+        # Point balance
+        point_norm_glacier_net_balance, point_net_balance = glacier_net_balance_fn(z_point, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
+        hist_point_norm_glacier_net_balance.append(point_norm_glacier_net_balance)
+        hist_point_net_balance.append(point_net_balance)
+        # Glacier wide balance
+        norm_glacier_net_balance, net_balance = glacier_net_balance_fn(zs, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
+        hist_norm_glacier_net_balance.append(norm_glacier_net_balance)
+        hist_net_balance.append(net_balance)
+    return t, x, Ts, hist_point_norm_glacier_net_balance, hist_point_net_balance, hist_norm_glacier_net_balance, hist_net_balance
 
 
 if __name__ == '__main__':
-    t, T, M, A, P = main()
-    
+    t, x, Ts, hist_point_norm_glacier_net_balance, hist_point_net_balance, hist_norm_glacier_net_balance, hist_net_balance = main()
+
     # Plotting
     fig = plt.figure()
-    plt.plot(t, M)
+    plt.plot(t, Ts)
     plt.xlabel("Days")
-    plt.ylabel("Melt")
+    plt.ylabel("Temperature")
     plt.show()
 
     fig = plt.figure()
-    plt.plot(t, A)
+    plt.plot(t, hist_point_net_balance)
     plt.xlabel("Days")
-    plt.ylabel("Accumulation")
+    plt.ylabel("Point net balance (station)")
+    plt.show()
+
+    fig = plt.figure()
+    color = iter(cm.rainbow(range(0, len(hist_net_balance), 10)))
+    for e in range(0, len(hist_net_balance), 10):
+        c = next(color)
+        plt.scatter(x, hist_net_balance[e], c=c)
+        plt.xlabel("Extent [m]")
+        plt.ylabel("Net balance (glacier)")
     plt.show()
