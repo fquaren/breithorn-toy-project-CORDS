@@ -1,6 +1,5 @@
 import sys
-# caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, '../src/')
+sys.path.insert(1, 'src')
 
 import numpy as np
 import pytest
@@ -12,7 +11,7 @@ def test_net_balance_fn():
     Ps = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
     melt_factor = 1.0
     T_threshold = 0
-    
+
     expected_balance = sum([-melt(T, melt_factor) + accumulate(T, P, T_threshold) for T, P in zip(Ts, Ps)]) * dt
     
     result = net_balance_fn(dt, Ts, Ps, melt_factor, T_threshold)
