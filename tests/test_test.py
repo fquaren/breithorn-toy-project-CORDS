@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 # Import functions from the mass balance model module
-from melt import synthetic_P, synthetic_T, lapse, melt, accumlate, main
+from melt import synthetic_P, synthetic_T, lapse, melt, accumulate, main
 
 
 def test_synthetic_P():
@@ -30,11 +30,11 @@ def test_melt():
 
 
 def test_accumulate():
-    assert accumlate(-5, 10, 0) == 10
-    assert accumlate(5, 10, 0) == 0
-    assert accumlate(0, 10, 0) == 10
-    assert accumlate(-1, 5, -1) == 5
-    assert accumlate(1, 5, -1) == 0
+    assert accumulate(-5, 10, 0) == 10
+    assert accumulate(5, 10, 0) == 0
+    assert accumulate(0, 10, 0) == 10
+    assert accumulate(-1, 5, -1) == 5
+    assert accumulate(1, 5, -1) == 0
 
 
 def test_main(monkeypatch):
