@@ -1,2 +1,1 @@
-# wsl-workshop
-Workshop on Reproducible Research and Geodata Processing
+# Wsl Workshop on Reproducible Research and Geodata Processing
