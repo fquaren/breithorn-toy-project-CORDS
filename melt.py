@@ -87,20 +87,13 @@ def glacier_net_balance_fn(zs, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
 
 
 def main():
-    # Data
-    #weather_data = "./data/workshop-reproducible-research/own"
-    #columns = ["111", "year", "day", "hour", "rel. humidity", "air temp.", "perciptation [mm / 30min]", "batt. voltage", "internal temp"]
-    #ds = pd.read_csv(weather_data, names=columns)
-    #t = ds["day"].to_numpy()
-    
-    t = np.arange(0, 365, 1.24)
-    
     # Model parameters
     melt_factor = 0.005  # Melt factor
     T_threshold = 4.0  # Threshold temperature
     lapse_rate = -0.6/100  # Temperature lapse rate
     x = np.arange(0, 5000, 500) 
     # Init
+    t = np.arange(0, 365, 1.24)
     M = np.zeros(len(t))
     Ts = np.zeros(len(t))
     A = np.zeros(len(t))
