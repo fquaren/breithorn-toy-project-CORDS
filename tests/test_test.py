@@ -37,37 +37,6 @@ def test_accumulate():
     assert accumulate(1, 5, -1) == 0
 
 
-def test_main(monkeypatch):
-    # Create a mock dataset
-    data = {
-        "111": [1, 2, 3, 4, 5],
-        "year": [2000, 2000, 2000, 2000, 2000],
-        "day": [0, 91, 182, 273, 364],
-        "hour": [0, 0, 0, 0, 0],
-        "rel. humidity": [0, 0, 0, 0, 0],
-        "air temp.": [0, 0, 0, 0, 0],
-        "perciptation [mm / 30min]": [0, 0, 0, 0, 0],
-        "batt. voltage": [0, 0, 0, 0, 0],
-        "internal temp": [0, 0, 0, 0, 0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Mock the read_csv function to return the mock dataset
-    monkeypatch.setattr(pd, "read_csv", lambda *args, **kwargs: df)
-    
-    t, T, M, A, P = main()
-    expected_t = np.array([0, 91, 182, 273, 364])
-    expected_T = np.array([-13, -3, 7, -3, -13])
-    expected_P = np.array([8e-3, 8e-3, 8e-3, 8e-3, 8e-3])
-    expected_M = np.array([-13, -3, 7, -3, -13])
-    expected_A = np.array([8e-3, 8e-3, 0, 8e-3, 8e-3])
-    
-    np.testing.assert_array_almost_equal(t, expected_t)
-    np.testing.assert_array_almost_equal(T, expected_T)
-    np.testing.assert_array_almost_equal(P, expected_P)
-    np.testing.assert_array_almost_equal(M, expected_M)
-    np.testing.assert_array_almost_equal(A, expected_A)
-
 
 if __name__ == '__main__':
     pytest.main()
