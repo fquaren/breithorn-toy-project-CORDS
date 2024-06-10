@@ -38,7 +38,7 @@ def accumlate(T, P, T_threshold):
 
 def main():
     # Data
-    weather_data = "/home/fquaren/work/CORDS/data/workshop-reproducible-research/own/weather.dat"
+    weather_data = "./data/workshop-reproducible-research/own"
     columns = ["111", "year", "day", "hour", "rel. humidity", "air temp.", "perciptation [mm / 30min]", "batt. voltage", "internal temp"]
     ds = pd.read_csv(weather_data, names=columns)
     t = ds["day"].to_numpy()
