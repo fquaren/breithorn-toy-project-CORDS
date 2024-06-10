@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
+from mpl_toolkits.mplot3d import axes3d
 
 
 # Precipitation function
@@ -100,28 +101,22 @@ def main():
     Ps = np.zeros(len(t))
     z_station = 1500
     z_point = [z_station]
-    hist_point_norm_glacier_net_balance = []
-    hist_point_net_balance = []
-    hist_norm_glacier_net_balance = []
-    hist_net_balance = []
+    Toffs = range(-4, 5)
+    point_net_balance = np.zeros((len(t), 1))
+    net_balance = np.zeros((len(t), len(x)))
+    out = np.zeros(len(Toffs))
     # Compute
     zs = [i/5+1400-z_station for i in x]
     for i, dt in enumerate(t):
         Ts[i] = synthetic_T(dt)
         Ps[i] = synthetic_P(dt)
         # Point balance
-        point_norm_glacier_net_balance, point_net_balance = glacier_net_balance_fn(z_point, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
-        hist_point_norm_glacier_net_balance.append(point_norm_glacier_net_balance)
-        hist_point_net_balance.append(point_net_balance)
+        _, point_net_balance[i, :] = glacier_net_balance_fn(z_point, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
         # Glacier wide balance
-        norm_glacier_net_balance, net_balance = glacier_net_balance_fn(zs, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
-        hist_norm_glacier_net_balance.append(norm_glacier_net_balance)
-        hist_net_balance.append(net_balance)
-    return t, x, Ts, hist_point_norm_glacier_net_balance, hist_point_net_balance, hist_norm_glacier_net_balance, hist_net_balance
-
-
-if __name__ == '__main__':
-    t, x, Ts, hist_point_norm_glacier_net_balance, hist_point_net_balance, hist_norm_glacier_net_balance, hist_net_balance = main()
+        _, net_balance[i, :] = glacier_net_balance_fn(zs, dt, Ts, Ps, melt_factor, T_threshold, lapse_rate)
+    for k, Toff in enumerate(Toffs):
+        for i, dt in enumerate(t):
+            out[k], _ = glacier_net_balance_fn(zs, dt, Ts+Toff, Ps, melt_factor, T_threshold, lapse_rate)
 
     # Plotting
     fig = plt.figure()
@@ -131,16 +126,39 @@ if __name__ == '__main__':
     plt.show()
 
     fig = plt.figure()
-    plt.plot(t, hist_point_net_balance)
+    plt.plot(t, point_net_balance)
     plt.xlabel("Days")
-    plt.ylabel("Point net balance (station)")
+    plt.ylabel("Pet balance (station)")
+    plt.show()
+
+    # fig = plt.figure()
+    # color = iter(cm.rainbow(range(len(hist_net_balance))))
+    # for e in range(len(hist_net_balance)):
+    #     c = next(color)
+    #     plt.plot(x, hist_net_balance[e], c=c)
+    #     plt.xlabel("Extent [m]")
+    #     plt.ylabel("Net balance (glacier-wide)")
+    # plt.show()
+
+    ax = plt.figure().add_subplot(projection='3d')
+    X, Y = np.meshgrid(x, t)
+    ax.plot_surface(Y, X, net_balance)
+    ax.set_xlabel("Time [day]")
+    ax.set_ylabel("Extent [m]")
+    ax.set_zlabel("Net balance (glacier-wide)")
     plt.show()
 
     fig = plt.figure()
-    color = iter(cm.rainbow(range(0, len(hist_net_balance), 10)))
-    for e in range(0, len(hist_net_balance), 10):
-        c = next(color)
-        plt.scatter(x, hist_net_balance[e], c=c)
-        plt.xlabel("Extent [m]")
-        plt.ylabel("Net balance (glacier)")
+    plt.scatter(Toffs, out)
+    plt.xlabel("T_off [C]")
+    plt.ylabel("Total net balance (glacier-wide)")
+    plt.grid()
     plt.show()
+
+    # return t, x, Ts, point_net_balance, net_balance, out
+
+
+if __name__ == '__main__':
+    # t, x, Ts, point_net_balance, net_balance, out = main()
+    main()
+    
