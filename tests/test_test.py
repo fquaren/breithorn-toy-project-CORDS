@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pytest
 
 # Import functions from the mass balance model module
