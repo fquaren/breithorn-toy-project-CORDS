@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 # Import functions from the mass balance model module
-from melt import synthetic_P, synthetic_T, lapse, melt, accumulate
+from melt import melt, synthetic_P, synthetic_T, lapse, melt, accumulate
 
 
 def test_synthetic_P():
