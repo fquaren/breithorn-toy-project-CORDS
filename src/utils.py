@@ -1,7 +1,7 @@
 import git
 import os
 import requests
-
+import zipfile
 
 def make_sha_filename(basename, ext):
     """
@@ -67,3 +67,31 @@ def download_file(url, destination_file):
 
 # Example usage
 # download_file('https://example.com/file.txt', 'path/to/destination/file.txt')
+
+
+def unzip_one_file(zipfile_path, filename, destination_file):
+    """
+    Extracts a specific file from a zip archive to a specified destination.
+
+    Args:
+        zipfile_path (str): The path to the zip file.
+        filename (str): The name of the file to extract from the zip archive.
+        destination_file (str): The path where the extracted file should be saved.
+
+    Raises:
+        FileNotFoundError: If the specified file is not found in the zip archive.
+    """
+    # make sure the directory exists
+    os.makedirs(os.path.dirname(destination_file), exist_ok=True)
+
+    with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
+        try:
+            with zip_ref.open(filename) as source_file:
+                with open(destination_file, 'wb') as dest_file:
+                    dest_file.write(source_file.read())
+            print(f"Extracted {filename} to {destination_file}")
+        except KeyError:
+            raise FileNotFoundError(f"{filename} not found in the zip archive.")
+
+# Example usage
+# unzip_one_file('path/to/zipfile.zip', 'file_to_extract.txt', 'path/to/destination/file.txt')
