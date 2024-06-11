@@ -1,6 +1,22 @@
 import git
 
 def make_sha_filename(basename, ext):
+    """
+    Generate a filename with a postfix based on the current Git commit.
+
+    The postfix is a 10-character short hash of the current commit ID. If there are
+    uncommitted changes in the repository, the postfix will be suffixed with '-dirty'.
+
+    Args:
+        basename (str): The base filename without extension.
+        ext (str): The file extension.
+
+    Returns:
+        str: The filename with the postfix (short hash or short hash with '-dirty').
+
+    """
+
+
     # Open the git repository in the current directory
     repo = git.Repo(".")
 

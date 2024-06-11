@@ -6,6 +6,14 @@ import pytest
 from melt import melt, accumulate, lapse, net_balance_fn, glacier_net_balance_fn
 
 def test_net_balance_fn():
+    """
+    Test the net_balance_fn function.
+
+    This function tests the net_balance_fn function by comparing its result with an expected balance.
+    The expected balance is calculated using the melt and accumulate functions.
+
+    """
+
     dt = 1.0  # time step
     Ts = np.array([-5, 0, 5, -3, 2])
     Ps = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
@@ -18,6 +26,13 @@ def test_net_balance_fn():
     assert np.isclose(result, expected_balance)
 
 def test_glacier_net_balance_fn():
+    """
+    Test the glacier_net_balance_fn function.
+
+    This function tests the glacier_net_balance_fn function by comparing its result with an expected glacier net balance.
+    The expected glacier net balance is calculated by calling the net_balance_fn function for each elevation and then averaging the results.
+    """
+
     zs = np.array([0, 500, 1000])
     dt = 1.0
     Ts = np.array([-5, 0, 5, -3, 2])
