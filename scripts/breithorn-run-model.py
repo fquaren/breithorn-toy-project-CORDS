@@ -1,38 +1,19 @@
 import pandas as pd
-import pdb
-import geopandas as gpd
 import rasterio
-from rasterio.plot import show
-import matplotlib.pyplot as plt
-import numpy as np
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
 
 import sys
 sys.path.insert(1, 'src')
 from utils import *
 from melt import *
+from params import *
 
 
-# Some extra data, manually entered
-z_weather_station = 2650 # elevation of weather station [m]
-Ps0 = 0.005 # mean (and constant) precipitation rate [m/d]
-
-
-# Read data
-def read_weather_data(weather_file):
-    columns = ["111", "year", "day", "hour", "rel. humidity", "air temp.", "perciptation [mm / 30min]", "batt. voltage", "internal temp"]
-    ds = pd.read_csv(weather_file, names=columns)
-    t = ds["year"].to_numpy()
-    Ts = ds["air temp."].to_numpy()
-    return t, Ts
-
-
-import numpy as np
-import pandas as pd
-from datetime import datetime, timedelta
-
+# Read weather data
 def read_campbell(file):
     """
     Reads a Campbell logger format file with temperature (ignores other data).
@@ -57,6 +38,7 @@ def read_campbell(file):
     
     return t, temp
 
+
 def parse_campbell_date_time(year, day, HHMM):
     """
     Parses the Campbell logger time format: `year, day of year, HHMM`.
@@ -77,41 +59,11 @@ def parse_campbell_date_time(year, day, HHMM):
     
     return date
 
-# Test the function
-assert parse_campbell_date_time(2007, 1, 1239) == datetime(2007, 1, 1, 12, 39)
-assert parse_campbell_date_time(2007, 365, 2359) == datetime(2007, 12, 31, 23, 59)
-
-# Example usage
-file_path = 'path/to/your/campbell_file.csv'
-
-
-
 
 def read_ascii_grid(file_path):
     with rasterio.open(file_path) as src:
         data = src.read(1)
     return data
-
-
-
-def read_and_visualize_ascii_grid(file_path):
-    """
-    Reads and visualizes an ASCII grid file.
-
-    Args:
-        file_path (str): The path to the ASCII grid file.
-    """
-    try:
-        with rasterio.open(file_path) as src:
-            data = src.read(1)  # Read the first band
-            fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-            show(data, ax=ax, cmap='viridis')
-            ax.set_title(f'Visualization of {file_path}')
-            plt.colorbar(ax.images[0], ax=ax, orientation='vertical')
-            plt.show()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
 
 
 def heatmap(data, title, output_file):
@@ -124,23 +76,24 @@ def heatmap(data, title, output_file):
         output_file (str): The file to save the heatmap.
     """
     plt.imshow(data, cmap='viridis')
-    plt.colorbar()
+    plt.colorbar(label="Point mass balance [m/d]")
     plt.title(title)
     plt.savefig(output_file)
     plt.show()
 
 
-file_path_dem = "/home/fquaren/work/breithorn-toy-project-CORDS/data/foreign/DEM/swisstopo_dhm200_cropped/dhm200_cropped.asc"
-file_path_mask = "/home/fquaren/work/breithorn-toy-project-CORDS/data/own/mask/mask_breithorngletscher/mask_breithorngletscher.asc"
+file_path_dem = "data/foreign/DEM/swisstopo_dhm200_cropped/dhm200_cropped.asc"
+file_path_mask = "data/own/mask/mask_breithorngletscher/mask_breithorngletscher.asc"
+file_path_weather = "data/own/weather.dat"
+results_dir = 'results'
+
 dem = np.array(read_ascii_grid(file_path_dem))
 mask = np.array(read_ascii_grid(file_path_mask))
-# t, Ts = read_weather_data("data/own/weather.dat")
-t, Ts = read_campbell("data/own/weather.dat")
+t, Ts = read_campbell(file_path_weather)
 Ps = Ps0*np.ones(len(Ts))
 lapse_rate = -0.6/100
 melt_factor = 0.005
 T_threshold = 4
-results_dir = 'results'
 
 # Run the model for the whole Breithorn glacier
 zs = dem[mask == 1] - z_weather_station  # Select glacier points and use elevation of weather station as datum
@@ -153,7 +106,7 @@ point_massbalance_map[mask == 1] = point_massbalance
 
 # Save the mass balance map
 output_file = make_sha_filename(os.path.join(results_dir, "breithorn_massbalance_field"), ".png")
-print(output_file)
+
 heatmap(point_massbalance_map, "Point Mass Balance Map", output_file)
 
 # Generate output table

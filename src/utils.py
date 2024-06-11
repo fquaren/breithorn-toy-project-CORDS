@@ -2,8 +2,6 @@ import git
 import os
 import requests
 import zipfile
-import pandas as pd
-import rasterio
 
 def make_sha_filename(basename, ext):
     """
@@ -20,8 +18,6 @@ def make_sha_filename(basename, ext):
         str: The filename with the postfix (short hash or short hash with '-dirty').
 
     """
-
-
     # Open the git repository in the current directory
     repo = git.Repo(".")
 
@@ -86,22 +82,3 @@ def unzip_all_files(zipfile_path, destination_dir):
         zip_ref.extractall(destination_dir)
         print(f"Extracted all files to {destination_dir}")
 
-
-# Helper function to save figures with a standardized filename
-def make_sha_filename(filepath, extension):
-    return f"{filepath}{extension}"
-
-
-# Read data
-def read_campbell(weather_file):
-    # Dummy implementation to read weather data
-    data = pd.read_csv(weather_file)
-    t = data['time'].values
-    Ts = data['temperature'].values
-    return t, Ts
-
-
-def read_ascii_grid(file_path):
-    with rasterio.open(file_path) as src:
-        data = src.read(1)
-    return data
