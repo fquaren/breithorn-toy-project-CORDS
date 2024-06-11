@@ -1,18 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
+from datetime import datetime
+import os
 
 from melt import *
 from utils import make_sha_filename
 
 
 def main():
+    
     # Model parameters
-    melt_factor = 0.005  # Melt factor
-    T_threshold = 4.0  # Threshold temperature
-    lapse_rate = -0.6/100  # Temperature lapse rate
+    melt_factor = 0.005
+    T_threshold = 4.0
+    lapse_rate = -0.6/100
+    
     # Init
-    x = np.arange(0, 5000, 500)  # Glacier extent
+    x = np.arange(0, 5000, 500)
     t = np.arange(0, 365, 1.24)
     M = np.zeros(len(t))
     Ts = np.zeros(len(t))
@@ -24,6 +28,7 @@ def main():
     point_net_balance = np.zeros((len(t), 1))
     net_balance = np.zeros((len(t), len(x)))
     out = np.zeros(len(Toffs))
+    
     # Compute
     zs = [i/5+1400-z_station for i in x]
     for i, dt in enumerate(t):
@@ -37,12 +42,22 @@ def main():
         for i, dt in enumerate(t):
             out[k], _ = glacier_net_balance_fn(zs, dt, Ts+Toff, Ps, melt_factor, T_threshold, lapse_rate)
 
+    # Create output directory
+    output_path = "output"
+    os.mkdir(output_path, exist_ok=True)
+    
+    # Save temperature data
+    np.savetxt(os.path.join(output_path, "Synthetic-T.csv"), Ts, delimiter=',')
+
+    # Get date
+    date = datetime.now().strftime("%Y-%m-%d-%H-%M-")
+
     # Plotting
     fig = plt.figure()
     plt.plot(t, Ts)
     plt.xlabel("Days")
     plt.ylabel("Temperature")
-    plt.savefig(make_sha_filename("Synthetic-T", ".png"))
+    plt.savefig(os.path.join(output_path, make_sha_filename(date+"Synthetic-T", ".png")))
 
     fig = plt.figure()
     plt.plot(t, point_net_balance)
@@ -64,8 +79,6 @@ def main():
     plt.ylabel("Total net balance (glacier-wide)")
     plt.grid()
     # plt.show()
-
-    # 
 
 
 if __name__ == '__main__':
