@@ -50,7 +50,7 @@ def main():
             )
 
     # Create output directory if it doesn't exist
-    output_path = "output"
+    output_path = "results"
     os.makedirs(output_path, exist_ok=True)
     
     # Save synthetic temperature data to a CSV file
