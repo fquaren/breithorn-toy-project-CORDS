@@ -1,4 +1,7 @@
 import git
+import os
+import requests
+
 
 def make_sha_filename(basename, ext):
     """
@@ -32,3 +35,35 @@ def make_sha_filename(basename, ext):
         postfix = short_hash
 
     return f"{basename}-{postfix}{ext}"
+
+
+def download_file(url, destination_file):
+    """
+    Downloads a file from the given URL to the specified destination.
+
+    If the file already exists at the destination, the function does nothing.
+    Otherwise, it downloads the file and saves it to the destination.
+
+    Args:
+        url (str): The URL of the file to download.
+        destination_file (str): The path where the downloaded file should be saved.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the download.
+    """
+    # make sure the directory exists
+    os.makedirs(os.path.dirname(destination_file), exist_ok=True)
+
+    if os.path.isfile(destination_file):
+        # do nothing
+        print(f"Already downloaded {destination_file}")
+    else:
+        # download
+        print(f"Downloading {destination_file} ... ", end="")
+        response = requests.get(url)
+        with open(destination_file, 'wb') as file:
+            file.write(response.content)
+        print("done.")
+
+# Example usage
+# download_file('https://example.com/file.txt', 'path/to/destination/file.txt')
