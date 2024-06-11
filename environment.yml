@@ -2,8 +2,11 @@ name: wsl
 channels:
 - conda-forge
 dependencies:
+- geopandas
 - matplotlib
+- pandas
 - pytest
 - python
+- rasterio
 - requests
 
