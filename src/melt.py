@@ -3,21 +3,53 @@ import numpy as np
 
 # Precipitation function
 def synthetic_P(t):
+    """Returns a constant precipitation rate of 8e-3."""
     return 8e-3
 
 
 # Synthetic temperature
-def synthetic_T(t):    
+def synthetic_T(t):
+    """
+    Calculates the synthetic temperature using a combination of two cosine functions.
+
+    The first cosine function has a period of 364 days (representing a year) and the second has a period of 1 day.
+
+    Args:
+        t: Time variable, typically in days.
+
+    Returns:
+        float: Synthetic temperature value.
+    """
     return -10.0*np.cos(2*np.pi/364 * t) - 8.0*np.cos(2*np.pi* t) + 5.0
 
 
 # Lapsed temperature 
 def lapse(T, dz, lapse_rate):
+    """Calculates the lapsed temperature.
+
+    Args:
+        T: Original temperature.
+        dz: Elevation change.
+        lapse_rate: Rate of temperature change with elevation.
+
+    Returns:
+        float: Lapsed temperature.
+    """
     return lapse_rate * dz + T
 
 
 # Melt function
 def melt(T, m):
+    """
+    Calculates the melt rate.
+
+    Args:
+        T: Temperature.
+        m: Melt factor.
+
+    Returns:
+        float: Melt rate if temperature is above or equal to 0, otherwise returns 0.
+    """
     if T >= 0:
         return m * T
     else:
@@ -26,6 +58,17 @@ def melt(T, m):
 
 # Accumulation rate
 def accumulate(T, P, T_threshold):
+    """
+    Calculates the accumulation rate.
+
+    Args:
+        T: Temperature.
+        P: Precipitation rate.
+        T_threshold: Temperature threshold for accumulation.
+
+    Returns:
+        float: Precipitation rate if temperature is below or equal to the threshold, otherwise returns 0.
+    """
     if T <= T_threshold:
         return P
     else:
