@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 
 from melt import *
+from utils import make_sha_filename
 
 
 def main():
@@ -41,13 +42,13 @@ def main():
     plt.plot(t, Ts)
     plt.xlabel("Days")
     plt.ylabel("Temperature")
-    plt.show()
+    plt.savefig(make_sha_filename("Synthetic-T", ".png"))
 
     fig = plt.figure()
     plt.plot(t, point_net_balance)
     plt.xlabel("Days")
     plt.ylabel("Pet balance (station)")
-    plt.show()
+    # plt.show()
 
     ax = plt.figure().add_subplot(projection='3d')
     X, Y = np.meshgrid(x, t)
@@ -55,14 +56,16 @@ def main():
     ax.set_xlabel("Time [day]")
     ax.set_ylabel("Extent [m]")
     ax.set_zlabel("Net balance (glacier-wide)")
-    plt.show()
+    # plt.show()
 
     fig = plt.figure()
     plt.scatter(Toffs, out)
     plt.xlabel("T_off [C]")
     plt.ylabel("Total net balance (glacier-wide)")
     plt.grid()
-    plt.show()
+    # plt.show()
+
+    # 
 
 
 if __name__ == '__main__':
